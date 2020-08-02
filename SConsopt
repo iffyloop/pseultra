@@ -14,7 +14,7 @@ AddOption(
     dest = 'cc_prefix',
     type = 'string',
     nargs = 1,
-    default = 'mips64',
+    default = 'mips64-elf',
     action = 'store',
     metavar = 'CC_PREFIX',
     help = 'MIPS cross compiler prefix'

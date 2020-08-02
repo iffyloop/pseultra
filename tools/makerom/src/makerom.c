@@ -277,6 +277,11 @@ void add_segment (segment seg) {
 char *open_file (char *filename) {
     FILE* file;
 
+    // When processing a file with Windows line endings, a carriage return may be
+    // caught at the end of the filename. Remove it now, so it doesn't cause an
+    // invalid filename in fopen.
+    strtok(filename, "\r");
+
     // Open file
     file = fopen(filename, "r");
     

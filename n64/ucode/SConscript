@@ -11,7 +11,7 @@ Import('mips_env')
 
 path = Dir('.').abspath
 
-ucode_env = mips_env.Clone(ASFLAGS = '-EB -G0 -march=r4000 ', CPPPATH = [path + '/include', path + '/../../include'])
+ucode_env = mips_env.Clone(ASFLAGS = '-EB -G0 -march=r4000 -mabi=32 ', CPPPATH = [path + '/include', path + '/../../include'])
 
 includes = [
     './include/ucode/rsp.h',

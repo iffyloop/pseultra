@@ -13,9 +13,11 @@ In addition to the aforementioned tools, `pseultra` provides a library `libpseul
 
 To use `pseultra`, you need `scons`, a native C toolchain, as well as a toolchain for compiling for the MIPS VR4300 architecture 
 
-### Installing
+### Building
 
-To install `pseultra`, just `scons` then `sudo scons install` in the root directory, or in the directory of any individual part you'd like to compile.
+If you're on MSYS2, first download the pre-built [n64chain](https://cen64.com/uploads/n64chain-win64-tools.zip) binaries, then add them to your PATH: `export PATH=/path/to/n64chain/bin:$PATH`. If you're on macOS/Linux or using a different N64 toolchain, please follow the setup directions in its documentation and ensure it is added to your path.
+
+Now, to install `pseultra`, run `scons` then `scons install` (may require `sudo`) in the tools directory, then run the same commands in the root directory.
 
 To build the documentation, run `doxygen` in the root directory, or optionally, `doxygen Doxyfile.priv` to include documentation on internal functions.
 
