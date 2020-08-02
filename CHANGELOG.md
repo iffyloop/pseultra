@@ -2,6 +2,20 @@
 
 ## [Unreleased](https://github.com/pseudophpt/pseultra/compare/master...develop)
 
+### Added
+- Matrix operations
+- PopMtx argument to pop multiple matrices at once
+- Controller (SI) interface
+- Perspective corrected triangles
+- W scaling
+
+### Changed
+- Add PATH environment variable to scons build
+- Re-structured PSM3D Tri command code to vectorize coefficient calculations
+
+### Fixed
+- Bug involving clamping of diffuse lighting value which would cause incorrect lighting
+
 ## [1.4.0](https://github.com/pseudophpt/pseultra/compare/v1.3.0...v1.4.0) - 2019-07-01
 
 ### Added

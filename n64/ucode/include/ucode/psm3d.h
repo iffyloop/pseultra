@@ -68,14 +68,6 @@ typedef struct __attribute__((packed, aligned(8))) uPSM3DVtx_t {
     u32 pad5;
 } uPSM3DVtx;
 
-/** @brief Matrix for PSM3D */
-typedef struct __attribute__((packed, aligned(8))) uPSM3DMtx_t {
-    /** @brief Integral part of matrix */
-    u16 intgr [4][4];
-    /** @brief Fractional part of matrix */
-    u16 frac [4][4];
-} uPSM3DMtx;
-
 /** @brief Viewport for PSM3D */
 typedef struct __attribute__((packed, aligned(8))) uPSM3DVp_t {
     /** @brief Half the viewport width */
@@ -147,6 +139,7 @@ typedef struct __attribute__((packed, aligned(8))) uPSM3DLights_t {
 #define UCODE_PSM3D_OP_SET_VP 0x08
 #define UCODE_PSM3D_OP_POP_MTX 0x09
 #define UCODE_PSM3D_OP_LOAD_LIGHTS 0x0A
+#define UCODE_PSM3D_OP_SET_WSCALE 0x0B
 
 /*
  * Operation macros
@@ -185,6 +178,10 @@ typedef struct __attribute__((packed, aligned(8))) uPSM3DLights_t {
 #define UCODE_PSM3D_RSPMODE_SHADE 0x1000
 #define UCODE_PSM3D_RSPMODE_SHADE_OFF 0
 #define UCODE_PSM3D_RSPMODE_SHADE_ON 0x1000
+
+#define UCODE_PSM3D_RSPMODE_PERSP 0x2000
+#define UCODE_PSM3D_RSPMODE_PERSP_OFF 0
+#define UCODE_PSM3D_RSPMODE_PERSP_ON 0x2000
 
 #define usPSM3DSetRSPMode(mask, data) \
     {\
@@ -341,6 +338,19 @@ typedef struct __attribute__((packed, aligned(8))) uPSM3DLights_t {
         _FMT(vp, 0, 24)\
     }
 
+#define usPSM3DSetWScale(wscale) \
+    {\
+        _FMT(UCODE_PSM3D_OP_SET_WSCALE, 24, 8),\
+            \
+        _FMT(wscale, 0, 16)\
+    }
+#define uPSM3DSetWScale(dl, wscale) \
+    *((dl) ++) = (uPSM3DDispCmd) {\
+        _FMT(UCODE_PSM3D_OP_SET_WSCALE, 24, 8),\
+            \
+        _FMT(wscale, 0, 16)\
+    }
+
 #define usPSM3DLoadLights(lights, count) \
     {\
         _FMT(UCODE_PSM3D_OP_LOAD_LIGHTS, 24, 8) |\
@@ -356,9 +366,19 @@ typedef struct __attribute__((packed, aligned(8))) uPSM3DLights_t {
         _FMT(lights, 0, 24)\
     }
 
+#define usPSM3DPopMtx(c) \
+    {\
+        _FMT(UCODE_PSM3D_OP_POP_MTX, 24, 8)\
+            ,\
+        _FMT(c, 0, 8)\
+    }
 
-#define usPSM3DPopMtx() { (UCODE_PSM3D_OP_POP_MTX << 24), 0 } 
-#define uPSM3DPopMtx(dl) *((dl) ++) = (uPSM3DDispCmd) { _FMT(UCODE_PSM3D_OP_POP_MTX, 24, 8), 0 } 
+#define uPSM3DPopMtx(dl, c)\
+    *((dl) ++) = (uPSM3DDispCmd) {\
+        _FMT(UCODE_PSM3D_OP_POP_MTX, 24, 8)\
+            ,\
+        _FMT(c, 0, 8)\
+    }
 
 #define UCODE_PSM3D_BLEND_MODE_M1A_IN 0
 #define UCODE_PSM3D_BLEND_MODE_M1A_MEM 1

@@ -24,7 +24,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // Stored vertex format:
-// X, Y, Zi, Zf, F, RG, S, T
+// X, Y, Z, W, F, RG, S, T
 // F: Flags
 // BBBBBBBB --xyzXYZ 
 // x: outside of negative x clip space
@@ -86,6 +86,10 @@ OPLoadVtx:
         sdv vc17, 0, cmd + 32, $zero
         ldv vc17, 8, cmd + 32, $zero
 
+        vmudl vc17, vc17, wscale, e0 // Multiply by w scale value 
+        vmadm vc16, vc16, wscale, e0
+        vmadn vc17, nullconst, nullconst, f
+
     // Eye coordinates for this vertex have been calculated, now they can be used in the lighting proces (if necessary)
 
     andi r24, rsp_mode, PSM3D_MODE_LIGHT
@@ -109,7 +113,7 @@ OPLoadVtx:
         sdv vc19, 0, cmd + 32, $zero // Copy second halves for matrix multiply
         ldv vc19, 8, cmd + 32, $zero
         
-        vmudm vc8, vc19, v2nconst, v2n_1 // Multiply by 1/65536 to get signed fraction as double-precision (normal is halved here)
+        vmudm vc8, vc19, v2nconst, v2n_2 // Multiply by 1/32768 to get signed fraction as double-precision
         vmadn vc9, nullconst, nullconst, f // Accumulate fractional result
 
     move r24, mtx_stack_ptr // Model matrix multiply to calculate transformed noral
@@ -118,6 +122,8 @@ OPLoadVtx:
 
     or r19, r0, r0 // Current light
     ori r20, r0, %lo(point_lights) // Current light pointer
+
+
 
 .DiffuseLightLoop:
 
@@ -149,8 +155,8 @@ OPLoadVtx:
         vrsql vc23, 0, vc23, 0
         vrsqh vc22, 0, nullconst, 0 
 
-        vmudl vc23, vc23, v2nconst2, v2n2_512 // Shift appropriately
-        vmadm vc22, vc22, v2nconst2, v2n2_512
+        vmudl vc23, vc23, v2nconst2, v2n2_256 // Shift appropriately (light - vtx)
+        vmadm vc22, vc22, v2nconst2, v2n2_256
         vmadn vc23, nullconst, nullconst, f
 
         vmudl vc24, vc21, vc23, e0 // Calculate unit vector for (light - vtx)
@@ -168,18 +174,16 @@ OPLoadVtx:
 
         vaddc vc21, vc21, vc21, h2 
         vadd vc20, vc20, vc20, h2
-        
-        vabs vc20, vc21, vc21, f // Calculate |dot / 2|
-        
-        vaddc vc20, vc20, vc21, f // Calculate (dot / 2) + |dot / 2| (Dot clamped to 0)
-        vadd vc21, nullconst, nullconst, f
+
+        vnor vc20, vc20, nullconst, f // Invert upper half to get 0x0000 for negative, 0xFFFF for positive 
+        vand vc21, vc21, vc20, f // Make zero if negative
 
         luv vc22, 0, 8, r20 // Load RGBA for this light
 
         sdv vc22, 8, cmd + 32, $zero // Copy right half of vector to left (Do this outside, so it will be faster)
         ldv vc22, 0, cmd + 32, $zero
         
-        vmudm vc20, vc22, vc20, e0 // Calculate RGBA * clamped dot
+        vmudm vc20, vc22, vc21, e0 // Calculate RGBA * clamped dot
 
         vadd vc18, vc20, vc18, f // Add to ambient light
 
@@ -220,6 +224,11 @@ OPLoadVtx:
         vrcph vc18, 3, vc14, 3 // Get 1/w 
         vrcpl vc19, 3, vc15, 3
         vrcph vc18, 3, vc14, 3
+        
+        vmudn vc17, vc19, v2nconst2, v2n2_16384 // Shift 1/w left 8 for stored s1.15 1/w value
+        vmadh vc16, vc18, v2nconst2, v2n2_16384
+        
+        ssv vc16, 6, 6, r17 // Store w into vertex cache
 
         vmudn vc17, vc19, v2nconst, v2n_2 // Shift left 1 for correct 1/w value
         vmadh vc16, vc18, v2nconst, v2n_2
@@ -232,12 +241,10 @@ OPLoadVtx:
       
         vadd vc22, vc18, v2nconst, v2n_1 // Add 1 to z integer part, range is now [0, 2]
 
-        vmudn vc23, vc19, v2nconst2, v2n2_256 // Shift z left 1 byte for max precision with floating point 
-        vmadh vc22, vc22, v2nconst2, v2n2_256        
-        vmadn vc23, nullconst, nullconst, f 
+        vmudn vc23, vc19, v2nconst2, v2n2_16384 // Change range to [0, 32768]
+        vmadh vc22, vc22, v2nconst2, v2n2_16384        
         
-        ssv vc22, 4, 4, r17 // Store (zi, zf) into vertex cache
-        ssv vc23, 4, 6, r17
+        ssv vc22, 4, 4, r17 // Store Z into vertex cache
         
         vmudn vc17, vc19, vpsize, f // Calculate device coordinates by apply viewport transformations
         vmadh vc16, vc18, vpsize, f 
