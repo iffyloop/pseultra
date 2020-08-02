@@ -1,4 +1,7 @@
 # pseultra ![Download total](https://img.shields.io/github/downloads/pseudophpt/pseultra/total.svg) ![Contributors](https://img.shields.io/github/contributors/pseudophpt/pseultra.svg) ![License](https://img.shields.io/github/license/pseudophpt/pseultra.svg) ![Codefactor Grade](https://www.codefactor.io/repository/github/pseudophpt/pseultra/badge?style=plastic)
+
+**This is not the official pseultra distribution; rather, it is a fork with updates merged from the `origin/develop` branch and increased Windows compatibility.**
+
 `pseultra` is a collection of tools used to develop software for the N64 that is simple to use, extensive in nature, and does not infringe the copyright of Nintendo's intellectual property. Currently, pseultra comes with the following tools:
 
 - `boot`: Custom IPL2 bootcode that can be implemented in replacement of Nintendo's original bootcode
@@ -8,6 +11,10 @@
 In addition to the aforementioned tools, `pseultra` provides a library `libpseultra` which allows for flexible development of N64 games. 
 
 ## Getting started
+
+### Pre-built SDK
+
+If you're using Windows and want to get started as quickly as possible, please follow [these instructions](https://n64.miraheze.org/wiki/Pseultra) to download and set up an SDK entirely with pre-built binaries.
 
 ### Prerequisites
 
