@@ -14,7 +14,7 @@ In addition to the aforementioned tools, `pseultra` provides a library `libpseul
 
 ### Pre-built SDK
 
-If you're using Windows and want to get started as quickly as possible, please follow [these instructions](https://n64.miraheze.org/wiki/Pseultra) to download and set up an SDK entirely with pre-built binaries.
+If you're using Windows and want to get started as quickly as possible, please follow [these instructions](https://n64brew.dev/wiki/Pseultra) to download and set up an SDK entirely with pre-built binaries.
 
 ### Prerequisites
 
